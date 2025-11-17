@@ -6,11 +6,6 @@ const getApiUrl = () => {
   // Si accedes desde otro dispositivo, usa la IP de tu PC
   const host = window.location.hostname;
 
-  // Modo desarrollo (local)
-  if (host === "localhost" || host === "127.0.0.1") {
-    return "http://localhost:5000/api";
-  }
-
   // Producción (Railway)
   return "https://chatbackend-production-2318.up.railway.app/api";
 };
