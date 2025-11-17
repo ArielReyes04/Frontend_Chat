@@ -1,13 +1,16 @@
 import { io } from 'socket.io-client';
+import { BASE_API_URL } from './api';
 
-// Obtener la URL del socket dinámicamente
-const getSocketUrl = () => {
-  const host = window.location.hostname;
-  // Producción (Railway)
-  return "https://chatbackend-production-2318.up.railway.app/api";
-};
+// Deriva la URL del servidor (quita /api) y permite override por env
+const derivedSocketUrl = BASE_API_URL.replace(/\/api\/?$/, '');
+let SOCKET_URL = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_SOCKET_URL)
+  ? import.meta.env.VITE_SOCKET_URL
+  : derivedSocketUrl;
 
-const SOCKET_URL = getSocketUrl();
+// Si la página está en HTTPS y SOCKET_URL es HTTP, fuerza HTTPS
+if (typeof window !== 'undefined' && window.location?.protocol === 'https:' && SOCKET_URL.startsWith('http://')) {
+  SOCKET_URL = SOCKET_URL.replace('http://', 'https://');
+}
 
 class SocketService {
   constructor() {
@@ -17,7 +20,9 @@ class SocketService {
   connect() {
     if (!this.socket) {
       this.socket = io(SOCKET_URL, {
-        transports: ['websocket'],
+        transports: ['websocket', 'polling'],
+        path: '/socket.io',
+        withCredentials: false,
         autoConnect: true
       });
     }
@@ -33,29 +38,19 @@ class SocketService {
 
   joinRoom(roomCode, pin, nickname) {
     if (this.socket) {
-      this.socket.emit('join_room', {
-        roomCode,
-        pin,
-        nickname
-      });
+      this.socket.emit('join_room', { roomCode, pin, nickname });
     }
   }
 
   sendMessage(roomCode, content) {
     if (this.socket) {
-      this.socket.emit('send_message', {
-        roomCode,
-        content
-      });
+      this.socket.emit('send_message', { roomCode, content });
     }
   }
 
   getMessages(roomCode, limit = 50) {
     if (this.socket) {
-      this.socket.emit('get_messages', {
-        roomCode,
-        limit
-      });
+      this.socket.emit('get_messages', { roomCode, limit });
     }
   }
 

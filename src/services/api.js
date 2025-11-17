@@ -1,19 +1,22 @@
 import axios from 'axios';
 
-// Obtener la IP del host actual (funciona en PC y móvil)
-const getApiUrl = () => {
-  // Si estás en desarrollo local, usa localhost
-  // Si accedes desde otro dispositivo, usa la IP de tu PC
-  const host = window.location.hostname;
+// Base por defecto (producción)
+const DEFAULT_API_URL = 'https://chatbackend-production-2318.up.railway.app/api';
 
-  // Producción (Railway)
-  return "https://chatbackend-production-2318.up.railway.app/api";
-};
+// Lee env var (Vercel/Vite) o usa DEFAULT_API_URL
+let API_URL = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_URL)
+  ? import.meta.env.VITE_API_URL
+  : DEFAULT_API_URL;
 
-const API_URL = getApiUrl();
+// Si la página está en HTTPS y la API está en HTTP, fuerza HTTPS
+if (typeof window !== 'undefined' && window.location?.protocol === 'https:' && API_URL.startsWith('http://')) {
+  API_URL = API_URL.replace('http://', 'https://');
+}
+
+export const BASE_API_URL = API_URL;
 
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: BASE_API_URL,
   headers: {
     'Content-Type': 'application/json'
   }
@@ -62,9 +65,9 @@ export const roomAPI = {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('nickname', nickname);
-    
-    const response = await axios.post(
-      `${API_URL}/rooms/${roomCode}/files`,
+
+    const response = await api.post(
+      `/rooms/${roomCode}/files`,
       formData,
       {
         headers: {
