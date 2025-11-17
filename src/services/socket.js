@@ -3,8 +3,8 @@ import { io } from 'socket.io-client';
 // Obtener la URL del socket dinámicamente
 const getSocketUrl = () => {
   const host = window.location.hostname;
-  return host === 'backend_chat.railway.internal' || host === '127.0.0.1'
-    ? 'http://backend_chat.railway.internal:5000'
+  return host === 'chat_backend.railway.internal' || host === '127.0.0.1'
+    ? 'http://chat_backend.railway.internal:5000'
     : `http://${host}:5000`;
 };
 

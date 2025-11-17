@@ -5,8 +5,8 @@ const getApiUrl = () => {
   // Si estás en desarrollo local, usa localhost
   // Si accedes desde otro dispositivo, usa la IP de tu PC
   const host = window.location.hostname;
-  return host === 'localhost' || host === '127.0.0.1' 
-    ? 'http://backend_chat.railway.internal/api'
+  return host === 'chat_backend.railway.internal' || host === '127.0.0.1' 
+    ? 'http://chat_backend.railway.internal/api'
     : `http://${host}:5000/api`;
 };
 
